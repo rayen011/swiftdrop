@@ -1,0 +1,257 @@
+rules_version = '2';
+
+// SwiftDrop Firestore rules.
+//
+// Design notes (see SPEC.md):
+//  * The catalog (/restaurants, /neighborhoods) is read-only to clients. It is
+//    seeded out-of-band by an admin, never by the app.
+//  * Order status is NOT stored-and-mutated. It is derived on the client from
+//    `placedAt` (see OrderTimeline.statusAt), so orders are create-only here and
+//    `placedAt` is pinned to the server clock. A client cannot fast-forward its
+//    own order to `delivered`.
+//  * User stats (orders / CO2 / passport stamps) are likewise NOT stored. They
+//    are projected from that user's own delivered orders, so there is no
+//    counter to inflate. The `hasOnly` allowlist on /users is what guarantees
+//    this: a stats field cannot be written even by a malicious client.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- helpers ----------
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Catalog seeding runs as a signed-in admin rather than an open write.
+    // Grant with the Admin SDK:
+    //   admin.auth().setCustomUserClaims(uid, { admin: true })
+    // The claim lands in the ID token on next refresh.
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.admin == true;
+    }
+
+    // Firestore rules have no abs(); compare both directions for float slack.
+    function approx(a, b) {
+      return (a - b) < 0.001 && (b - a) < 0.001;
+    }
+
+    // ---------- catalog: read-only ----------
+
+    match /restaurants/{restaurantId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+
+      match /menuItems/{menuItemId} {
+        allow read: if isSignedIn();
+        allow write: if isAdmin();
+      }
+    }
+
+    match /neighborhoods/{neighborhoodId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // ---------- users: own profile only, no stats fields ----------
+
+    function validProfile(data) {
+      // hasOnly is the load-bearing check: totalOrders / totalCo2Saved /
+      // stampCounts are not in this list, so they can never be written.
+      //
+      // !! plusPlanId / plusUntil are the exception, and they are TEST ONLY !!
+      // They are the SwiftDrop Plus entitlement, and allowing the client to
+      // write them means any user can grant themselves Plus for free. That is
+      // knowingly accepted while the purchase is a stub. When a real store
+      // integration lands, the store's webhook (via a Cloud Function) becomes
+      // the only writer and these two names must come back OUT of this list —
+      // at which point the gating below actually means something.
+      return data.keys().hasOnly(
+               ['uid', 'phone', 'name', 'savedAddresses',
+                'defaultAddressId', 'createdAt',
+                'plusPlanId', 'plusUntil', 'favorites', 'locale',
+                'themeMode'])
+             && data.keys().hasAll(
+               ['uid', 'phone', 'name', 'savedAddresses', 'defaultAddressId'])
+             && data.uid is string
+             && data.phone is string
+             && data.name is string && data.name.size() <= 80
+             && data.savedAddresses is list
+             && data.savedAddresses.size() <= 20
+             && data.defaultAddressId is string
+             && (!('plusPlanId' in data) || data.plusPlanId is string)
+             && (!('plusUntil' in data)
+                   || data.plusUntil == null
+                   || data.plusUntil is timestamp)
+             // Hearted products — display snapshots only, no money semantics.
+             && (!('favorites' in data)
+                   || (data.favorites is list && data.favorites.size() <= 100))
+             // Preferred app language ('', 'en', 'fr', ...).
+             && (!('locale' in data)
+                   || (data.locale is string && data.locale.size() <= 5))
+             // Preferred appearance ('' = follow system, 'light', 'dark').
+             // Presentation only, no money or entitlement semantics.
+             && (!('themeMode' in data)
+                   || (data.themeMode is string
+                       && data.themeMode in ['', 'light', 'dark']));
+    }
+
+    match /users/{uid} {
+      allow read: if isSelf(uid);
+
+      allow create: if isSelf(uid)
+                    && validProfile(request.resource.data)
+                    && request.resource.data.uid == uid;
+
+      allow update: if isSelf(uid)
+                    && validProfile(request.resource.data)
+                    && request.resource.data.uid == resource.data.uid
+                    && request.resource.data.phone == resource.data.phone
+                    && request.resource.data.createdAt == resource.data.createdAt;
+
+      // Profiles are retained; account deletion is an admin/support flow.
+      allow delete: if false;
+    }
+
+    // ---------- orders: create-only, server-pinned clock ----------
+
+    function validNewOrder(data, uid) {
+      return data.keys().hasOnly(
+               ['id', 'customerId', 'restaurantId', 'restaurantName', 'items',
+                'subtotalTND', 'deliveryFeeTND', 'ecoDiscountTND', 'totalTND',
+                'promoCode', 'promoDiscountTND', 'paymentMethod',
+                'status', 'isEcoOrder', 'co2SavedGrams', 'isGroupOrder',
+                'groupOrderId', 'deliveryAddress', 'driverId', 'driverLat',
+                'driverLng', 'placedAt', 'deliveredAt', 'neighborhoodId'])
+             && data.customerId == uid
+             && data.restaurantId is string && data.restaurantId.size() > 0
+             && data.neighborhoodId is string
+             && data.items is list
+             && data.items.size() > 0 && data.items.size() <= 50
+             && data.deliveryAddress is map
+
+             // A new order always starts at the bottom of the timeline, and the
+             // clock it is derived from is the server's, not the client's.
+             && data.status == 'pending'
+             && data.placedAt == request.time
+             && data.deliveredAt == null
+             && data.driverId == null
+             && data.driverLat == null
+             && data.driverLng == null
+
+             // Eco math is pinned to the SPEC §3 constants rather than trusted.
+             // Checked before the totals below, which do arithmetic on
+             // ecoDiscountTND — && short-circuits left to right, so the type
+             // guards have to come first.
+             && data.isEcoOrder is bool
+             && data.ecoDiscountTND is number
+             && approx(data.ecoDiscountTND, data.isEcoOrder ? 1.5 : 0.0)
+             && data.co2SavedGrams is number
+             && (data.isEcoOrder
+                   ? (data.co2SavedGrams >= 140 && data.co2SavedGrams <= 210)
+                   : data.co2SavedGrams == 0)
+
+             // Settled with the driver — SwiftDrop charges nothing in-app, so
+             // both methods are on-delivery and neither implies a captured
+             // payment.
+             && data.paymentMethod in ['cash', 'card']
+
+             // Passport promo. Whether the code was actually *earned* can't be
+             // checked here: stamps are derived by folding the user's orders,
+             // and rules cannot fold a list. So the discount is client-asserted
+             // and merely bounded — a client can claim a promo it never
+             // unlocked, exactly as it can already understate a subtotal. The
+             // redemption cap is enforced client-side in resolvePromo().
+             // Closing this properly needs the same trusted server as the rest.
+             && data.promoCode is string && data.promoCode.size() <= 24
+             && data.promoDiscountTND is number
+             && data.promoDiscountTND >= 0
+             && (data.promoCode == '' ? data.promoDiscountTND == 0 : true)
+
+             // Money: the client cannot invent a total.
+             && data.subtotalTND is number && data.subtotalTND >= 0
+             && data.deliveryFeeTND is number && data.deliveryFeeTND >= 0
+             && data.totalTND is number && data.totalTND >= 0
+             // No discount stack may exceed the order it discounts.
+             && (data.ecoDiscountTND + data.promoDiscountTND)
+                  <= (data.subtotalTND + data.deliveryFeeTND)
+             && approx(data.totalTND,
+                       data.subtotalTND + data.deliveryFeeTND
+                         - data.ecoDiscountTND - data.promoDiscountTND);
+    }
+
+    match /orders/{orderId} {
+      allow read: if isSignedIn() && resource.data.customerId == request.auth.uid;
+
+      allow create: if isSignedIn()
+                    && validNewOrder(request.resource.data, request.auth.uid)
+                    && request.resource.data.id == orderId;
+
+      // Status is derived from placedAt, so nothing legitimately updates an
+      // order. A cancel flow would go through a trusted server, not here.
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // ---------- group orders: shared carts ----------
+
+    function validNewGroup(data, uid) {
+      return data.keys().hasOnly(
+               ['id', 'hostUserId', 'restaurantId', 'restaurantName',
+                'deliveryFeeTND', 'shareCode', 'participants', 'status',
+                'placedOrderId', 'createdAt'])
+             && data.hostUserId == uid
+             && data.restaurantId is string && data.restaurantId.size() > 0
+             && data.shareCode is string && data.shareCode.size() == 6
+             && data.deliveryFeeTND is number && data.deliveryFeeTND >= 0
+             && data.status == 'open'
+             && data.placedOrderId == null
+             && data.participants is list
+             && data.participants.size() == 1
+             // Not pinned to request.time like an order's placedAt: nothing is
+             // derived from a group's createdAt, and GroupOrderRepository stamps
+             // it client-side. It only has to be a timestamp.
+             && data.createdAt is timestamp;
+    }
+
+    match /groupOrders/{groupId} {
+      // Any signed-in user may look a group up — joining is by share code, so
+      // the joiner is not yet a participant and cannot be matched on the doc.
+      // Share codes are the access control; the payload holds no PII beyond
+      // participant display names.
+      allow read: if isSignedIn();
+
+      allow create: if isSignedIn()
+                    && validNewGroup(request.resource.data, request.auth.uid)
+                    && request.resource.data.id == groupId;
+
+      // Members mutate a shared cart, so writes stay open to signed-in users —
+      // but the identity and price of the group are frozen at creation.
+      allow update: if isSignedIn()
+                    && request.resource.data.id == resource.data.id
+                    && request.resource.data.hostUserId == resource.data.hostUserId
+                    && request.resource.data.restaurantId == resource.data.restaurantId
+                    && request.resource.data.shareCode == resource.data.shareCode
+                    && request.resource.data.deliveryFeeTND == resource.data.deliveryFeeTND
+                    && request.resource.data.createdAt == resource.data.createdAt
+                    && request.resource.data.participants is list
+                    && request.resource.data.participants.size() <= 12
+                    // Locking, reopening and marking-ordered are the host's.
+                    && (request.resource.data.status == resource.data.status
+                        || isSelf(resource.data.hostUserId))
+                    && (request.resource.data.placedOrderId == resource.data.placedOrderId
+                        || isSelf(resource.data.hostUserId));
+
+      allow delete: if isSignedIn() && isSelf(resource.data.hostUserId);
+    }
+
+    // Anything not matched above is denied.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

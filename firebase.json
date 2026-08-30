@@ -1,0 +1,41 @@
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "ui": {
+      "enabled": true
+    },
+    "singleProjectMode": true
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "swiftdrop-da64a",
+          "appId": "1:903275424450:android:411b65fd3931ee5c57695b",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "swiftdrop-da64a",
+          "configurations": {
+            "android": "1:903275424450:android:411b65fd3931ee5c57695b",
+            "ios": "1:903275424450:ios:66edc99d58a5274757695b",
+            "macos": "1:903275424450:ios:66edc99d58a5274757695b",
+            "web": "1:903275424450:web:ca27ab544bfad20857695b",
+            "windows": "1:903275424450:web:275907399c976c7557695b"
+          }
+        }
+      }
+    }
+  }
+}

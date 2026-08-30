@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "903275424450",
+    "project_id": "swiftdrop-da64a",
+    "storage_bucket": "swiftdrop-da64a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:903275424450:android:411b65fd3931ee5c57695b",
+        "android_client_info": {
+          "package_name": "com.example.swiftdrop"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAUHiuM1zVQcPa-bq6Eav8HwSe8m8ceVpg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

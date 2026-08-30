@@ -1,0 +1,307 @@
+{
+  "@@locale": "en",
+
+  "navHome": "Home",
+  "navEco": "Eco",
+  "navPassport": "Passport",
+  "navProfile": "Profile",
+
+  "verticalFastFood": "Fast Food",
+  "verticalGroceries": "Groceries",
+  "verticalPharmacy": "Pharmacy",
+  "verticalCoffee": "Coffee & Drinks",
+
+  "taglineFastFood": "Burgers, pizza, tacos & more",
+  "taglineGroceries": "Fresh produce & daily essentials",
+  "taglinePharmacy": "Medicine & care, delivered",
+  "taglineCoffee": "Coffee, juice & pastries",
+
+  "headingFastFood": "Fast food near you",
+  "headingGroceries": "Grocery stores near you",
+  "headingPharmacy": "Pharmacies near you",
+  "headingCoffee": "Cafés near you",
+
+  "searchHintFastFood": "Search for food",
+  "searchHintGroceries": "Search for groceries",
+  "searchHintPharmacy": "Search for medicine",
+  "searchHintCoffee": "Search for drinks",
+
+  "emptyFastFood": "No restaurants here yet",
+  "emptyGroceries": "No grocery stores here yet",
+  "emptyPharmacy": "No pharmacies here yet",
+  "emptyCoffee": "No cafés here yet",
+
+  "shoppingFor": "Shopping for",
+  "chooseStoreType": "Choose a store type",
+  "storeTypeSubtitle": "Each one has its own selection.",
+
+  "deliverTo": "Deliver to",
+  "greeting": "Hi, {name} 👋",
+  "@greeting": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "greetingFallbackName": "there",
+
+  "orderAgain": "Order again",
+  "reorder": "Reorder",
+  "itemsSummary": "{count, plural, =1{1 item} other{{count} items}} · {total} TND",
+  "@itemsSummary": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "total": {"type": "String"}
+    }
+  },
+
+  "groupBannerTag": "Order together",
+  "groupBannerTitle": "Start a group order",
+  "groupBannerSubtitle": "Share a cart, split one delivery fee",
+  "startNow": "Start now",
+
+  "viewCart": "View cart",
+
+  "searchNoResults": "No results for “{query}”",
+  "@searchNoResults": {
+    "placeholders": {
+      "query": {"type": "String"}
+    }
+  },
+  "searchTryDifferent": "Try a different name or type of item.",
+
+
+  "appearance": "Appearance",
+  "appearanceSystem": "Follow system",
+  "appearanceLight": "Light",
+  "appearanceDark": "Dark",
+  "language": "Language",
+  "languageEnglish": "English",
+  "languageFrench": "Français",
+
+  "cartTitle": "Your cart",
+  "cartEmpty": "Your cart is empty",
+  "ecoBundle": "Eco Bundle",
+  "ecoLocked": "Unlock with Plus to bundle and cut CO₂",
+  "ecoIdle": "Bundle nearby orders, save on delivery",
+  "ecoActive": "Bundled with {count} nearby orders · saves {grams}g CO₂",
+  "@ecoActive": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "grams": {"type": "String"}
+    }
+  },
+  "subtotal": "Subtotal",
+  "deliveryFee": "Delivery fee",
+  "deliveryFeePlus": "Delivery fee (Plus)",
+  "ecoDiscount": "Eco discount",
+  "total": "Total",
+  "freeLabel": "FREE",
+  "goToCheckout": "Go to checkout · {total} TND",
+  "@goToCheckout": {
+    "placeholders": {
+      "total": {"type": "String"}
+    }
+  },
+
+  "checkoutTitle": "Checkout",
+  "noAddress": "No address set",
+  "payment": "Payment",
+  "payCash": "Cash on delivery",
+  "payCashHint": "Pay the driver in cash",
+  "payCard": "Card on delivery",
+  "payCardHint": "The driver brings a card terminal",
+  "passportDeal": "Passport deal",
+  "orderSummary": "Order summary",
+  "placeOrder": "Place order · {total} TND",
+  "@placeOrder": {
+    "placeholders": {
+      "total": {"type": "String"}
+    }
+  },
+  "orderFailed": "Could not place order: {error}",
+  "@orderFailed": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "promoHint": "Passport deal code",
+  "apply": "Apply",
+  "removeDeal": "Remove deal",
+  "promoCheckFailed": "Could not check that code. Try again.",
+  "promoUnknown": "That code doesn't exist.",
+  "promoNotEarned": "Not unlocked yet — collect your {zone} stamps first.",
+  "@promoNotEarned": {
+    "placeholders": {
+      "zone": {"type": "String"}
+    }
+  },
+  "promoExhausted": "You have already used this deal.",
+  "promoNoValue": "Nothing to discount — delivery is already free.",
+
+  "freshItems": "Fresh items",
+  "noFilterMatches": "Nothing matches those filters",
+  "cartItemCount": "{count, plural, =1{1 item} other{{count} items}}",
+  "@cartItemCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "sortBy": "Sort by",
+  "sortRecommended": "Recommended",
+  "sortPriceAsc": "Price: low to high",
+  "sortPriceDesc": "Price: high to low",
+  "priceAscShort": "Price ↑",
+  "priceDescShort": "Price ↓",
+  "categoryLabel": "Category",
+  "allCategories": "All categories",
+  "offers": "Offers",
+  "aboutProduct": "About this product",
+  "whyYoullLoveIt": "Why you'll love it",
+  "addToCart": "Add to cart",
+  "mrp": "MRP {price}",
+  "@mrp": {
+    "placeholders": {
+      "price": {"type": "String"}
+    }
+  },
+  "addedToCart": "Added {count} × {name} to cart",
+  "@addedToCart": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "name": {"type": "String"}
+    }
+  },
+  "minsChip": "{minutes} MINS",
+  "@minsChip": {
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "minFeeDelivery": "{minutes} min · {fee} TND delivery",
+  "@minFeeDelivery": {
+    "placeholders": {
+      "minutes": {"type": "int"},
+      "fee": {"type": "String"}
+    }
+  },
+  "deliveredToDoor": "{minutes} min · delivered to your door",
+  "@deliveredToDoor": {
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+
+  "recommendation": "Recommendation",
+  "noItemsYet": "No items yet",
+  "noMatchesTryPhoto": "No matches — try the photo request above",
+  "cantFindMedicine": "Can't find your medicine?",
+  "requestBannerSubtitle": "Send us a photo and a pharmacist will source it",
+  "cantFindNeed": "Can't find what you need?",
+  "requestTileSubtitle": "Send a photo and we'll source it",
+  "description": "Description",
+
+  "requestSheetBody": "Send a photo of the item or your prescription and a pharmacist will source it for you.",
+  "noteOptional": "Note (optional)",
+  "noteHint": "Dosage, brand, quantity…",
+  "sendRequest": "Send request",
+  "attachToContinue": "Attach a photo to continue",
+  "demoNoUpload": "Demo — no photo is uploaded or stored",
+  "addPhoto": "Add a photo",
+  "addPhotoSubtitle": "Prescription or a picture of the item",
+  "photoAttached": "Photo attached · tap to remove",
+  "requestSent": "Request sent — a pharmacist will confirm availability.",
+
+  "notSignedIn": "Not signed in",
+  "orderHistory": "Order history",
+  "favorites": "Favorites",
+  "favoritesSubtitle": "Tap one to open its store.",
+  "favoritesEmpty": "Nothing hearted yet — tap ♡ on any product.",
+  "removeLabel": "Remove",
+  "savedAddresses": "Saved addresses",
+  "logOut": "Log out",
+  "statOrders": "Orders",
+  "statCo2": "CO₂ saved",
+  "statStamps": "Stamps",
+  "swiftdropUser": "SwiftDrop user",
+
+  "plusActive": "SwiftDrop Plus is active",
+  "plusRenews": "{plan} · renews {date}",
+  "@plusRenews": {
+    "placeholders": {
+      "plan": {"type": "String"},
+      "date": {"type": "String"}
+    }
+  },
+  "plusPitch": "Free delivery, Eco Bundle and group hosting",
+
+  "planWeekly": "Weekly",
+  "planMonthly": "Monthly",
+  "planYearly": "Yearly",
+  "popularBadge": "POPULAR",
+  "bestDealBadge": "BEST DEAL",
+  "trialBadge": "{days} DAYS\nFREE TRIAL",
+  "@trialBadge": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "percentOffBadge": "{percent}% OFF",
+  "@percentOffBadge": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "perWeek": "{price}/week",
+  "@perWeek": {
+    "placeholders": {
+      "price": {"type": "String"}
+    }
+  },
+
+  "restore": "Restore",
+  "plusNoLimits": "with no limits",
+  "perkDeliveryTitle": "Free delivery, every order",
+  "perkDeliverySubtitle": "No delivery fee at checkout — on any store.",
+  "perkEcoTitle": "Eco Bundle Mode",
+  "perkEcoSubtitle": "Bundle nearby orders, cut CO₂ and save on every drop.",
+  "perkGroupTitle": "Host group orders",
+  "perkGroupSubtitle": "Start a shared cart and split one fee. Joining stays free.",
+  "tryTrial": "TRY {days}-DAY FREE TRIAL",
+  "@tryTrial": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "getPlus": "GET PLUS · {price} TND",
+  "@getPlus": {
+    "placeholders": {
+      "price": {"type": "String"}
+    }
+  },
+  "trialStarted": "Trial started — SwiftDrop Plus is active.",
+  "plusActivated": "SwiftDrop Plus is active.",
+  "plusFailed": "Could not start Plus: {error}",
+  "@plusFailed": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "renewalTrial": "Free for {days} days, then {price} TND every {period} days. Cancel anytime.",
+  "@renewalTrial": {
+    "placeholders": {
+      "days": {"type": "int"},
+      "price": {"type": "String"},
+      "period": {"type": "int"}
+    }
+  },
+  "renewalPlain": "{price} TND every {period} days. Cancel anytime.",
+  "@renewalPlain": {
+    "placeholders": {
+      "price": {"type": "String"},
+      "period": {"type": "int"}
+    }
+  },
+  "testPurchaseNote": "Test purchase — no payment is taken",
+  "termsPrivacy": "Terms of Service · Privacy Policy"
+}
